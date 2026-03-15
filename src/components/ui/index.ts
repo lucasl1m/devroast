@@ -35,6 +35,16 @@ export {
 export { CodeBlock, type CodeBlockProps } from "./code-block-client";
 
 export {
+  CodeEditor,
+  type CodeEditorProps,
+  type CodeEditorSize,
+  type CodeEditorVariant,
+  detectLanguage,
+  editorVariants,
+  languages,
+} from "./code-editor";
+
+export {
   DiffLine,
   type DiffLineProps,
   type DiffLineVariant,

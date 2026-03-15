@@ -10,6 +10,7 @@
     "format": "biome format --write ."
   },
   "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
     "@radix-ui/react-switch": "^1.2.6",
     "next": "16.1.6",
     "react": "19.2.3",

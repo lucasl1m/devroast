@@ -1,26 +1,110 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Backgrounds */
+  --bg-page: #0c0c0c;
+  --bg-input: #111111;
+  --bg-surface: #0f0f0f;
+  --bg-elevated: #1a1a1a;
+
+  /* Text */
+  --text-primary: #fafafa;
+  --text-secondary: #6b7280;
+  --text-tertiary: #4b5563;
+
+  /* Neutral */
+  --neutral-900: #0a0a0a;
+  --neutral-100: #fafafa;
+
+  /* Accent Colors */
+  --accent-green: #10b981;
+  --accent-red: #ef4444;
+  --accent-amber: #f59e0b;
+  --accent-cyan: #06b6d4;
+  --accent-blue: #3b82f6;
+  --accent-orange: #f97316;
+
+  /* Primary */
+  --primary: #ff8400;
+  --primary-foreground: #111111;
+
+  /* Semantic Colors */
+  --success: #22c55e;
+  --warning: #f59e0b;
+  --error: #ef4444;
+  --info: #3b82f6;
+
+  /* Diff Colors */
+  --diff-removed: #1a0a0a;
+  --diff-added: #0a1a0f;
+
+  /* Borders */
+  --border-primary: #2a2a2a;
+  --border-secondary: #252525;
+
+  /* Radius */
+  --radius-m: 16;
+  --radius-none: 0;
+  --radius-pill: 999;
+
+  /* Fontes (via next/font) */
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-code: "IBM Plex Mono", ui-monospace, monospace;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  /* Backgrounds */
+  --color-bg-page: var(--bg-page);
+  --color-bg-input: var(--bg-input);
+  --color-bg-surface: var(--bg-surface);
+  --color-bg-elevated: var(--bg-elevated);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Text */
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+
+  /* Neutral */
+  --color-neutral-900: var(--neutral-900);
+  --color-neutral-100: var(--neutral-100);
+
+  /* Accent Colors */
+  --color-accent-green: var(--accent-green);
+  --color-accent-red: var(--accent-red);
+  --color-accent-amber: var(--accent-amber);
+  --color-accent-cyan: var(--accent-cyan);
+  --color-accent-blue: var(--accent-blue);
+  --color-accent-orange: var(--accent-orange);
+
+  /* Primary */
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  /* Semantic Colors */
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+  --color-info: var(--info);
+
+  /* Diff Colors */
+  --color-diff-removed: var(--diff-removed);
+  --color-diff-added: var(--diff-added);
+
+  /* Borders */
+  --color-border-primary: var(--border-primary);
+  --color-border-secondary: var(--border-secondary);
+
+  /* Radius */
+  --radius-m: var(--radius-m);
+  --radius-none: var(--radius-none);
+  --radius-pill: var(--radius-pill);
+
+  /* Fontes */
+  --font-mono: var(--font-mono);
+  --font-code: var(--font-code);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg-page);
+  color: var(--text-primary);
 }

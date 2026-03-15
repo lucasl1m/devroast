@@ -132,23 +132,20 @@ function CodeEditor({
         showLanguageSelector={showLanguageSelector}
       />
 
-      <div className="relative h-[calc(100%-40px)]">
+      <div className="relative flex-1 min-h-0">
         <HighlightedCode code={value} language={language} />
 
         <textarea
           value={value}
           onChange={handleChange}
           placeholder={placeholder}
-          className="absolute inset-0 w-full h-full resize-none bg-transparent text-transparent caret-accent-green p-4 leading-6 font-mono text-sm focus:outline-none placeholder:text-text-tertiary"
+          className="absolute inset-0 w-full h-full resize-none bg-transparent text-transparent caret-accent-green p-4 font-mono text-sm focus:outline-none placeholder:text-text-tertiary overflow-x-hidden overflow-y-auto"
           spellCheck={false}
-          style={{
-            lineHeight: "1.5rem",
-          }}
         />
       </div>
 
       {/* Character Limit Footer */}
-      <div className="flex items-center justify-end h-8 px-4 border-t border-border-primary bg-bg-surface">
+      <div className="flex items-center justify-end h-8 px-4 border-t border-border-primary bg-bg-surface shrink-0">
         <span
           className={twMerge(
             "font-mono text-xs",

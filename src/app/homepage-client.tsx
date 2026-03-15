@@ -32,7 +32,7 @@ export default function HomepageClient({ initialData }: HomepageClientProps) {
 
   return (
     <main className="min-h-screen bg-bg-page">
-      <div className="max-w-[960px] mx-auto px-10 pt-[80px]">
+      <div className="w-full max-w-[1440px] px-10 pt-[80px]">
         {/* Hero Title */}
         <div className="flex flex-col gap-3 mb-12">
           <h1 className="flex items-center gap-3 text-[36px] font-bold font-mono">

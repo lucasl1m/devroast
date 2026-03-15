@@ -4,6 +4,25 @@ import {
   supportedLanguages,
 } from "@/lib/languages";
 
+const languageIcons: Record<SupportedLanguage, string> = {
+  javascript: "JS",
+  typescript: "TS",
+  python: "PY",
+  go: "GO",
+  rust: "RS",
+  java: "JV",
+  csharp: "C#",
+  php: "PHP",
+  html: "HTML",
+  css: "CSS",
+  scss: "SCSS",
+  json: "JSON",
+  yaml: "YAML",
+  sql: "SQL",
+  shell: "SH",
+  plaintext: "TXT",
+};
+
 interface EditorHeaderProps {
   language?: SupportedLanguage;
   onLanguageChange?: (language: SupportedLanguage) => void;
@@ -39,11 +58,11 @@ function EditorHeader({
         <select
           value={language}
           onChange={handleLanguageSelect}
-          className="ml-auto rounded border border-border-primary bg-bg-input px-2 py-1 text-xs text-text-secondary focus:border-accent-green focus:outline-none focus:ring-1 focus:ring-accent-green"
+          className="ml-auto flex items-center gap-2 rounded border border-border-primary bg-bg-input px-2 py-1 text-xs text-text-secondary focus:border-accent-green focus:outline-none focus:ring-1 focus:ring-accent-green"
         >
           {supportedLanguages.map((lang) => (
             <option key={lang} value={lang}>
-              {languageNames[lang]}
+              {languageIcons[lang]} {languageNames[lang]}
             </option>
           ))}
         </select>

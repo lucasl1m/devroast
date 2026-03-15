@@ -1,11 +1,10 @@
-import Editor, { type Monaco } from "@monaco-editor/react";
-import type { editor } from "monaco-editor";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { codeToHtml } from "shiki";
 import { twMerge } from "tailwind-merge";
 import { tv, type VariantProps } from "tailwind-variants";
 
 const editorVariants = tv({
-  base: "rounded-md border border-border-primary overflow-hidden bg-bg-input",
+  base: "rounded-md border border-border-primary overflow-hidden bg-bg-input font-mono",
   variants: {
     variant: {
       default: "border-border-primary",
@@ -33,12 +32,13 @@ export type CodeEditorSize = NonNullable<
 
 export interface CodeEditorProps {
   value?: string;
-  onChange?: (value: string | undefined) => void;
+  onChange?: (value: string) => void;
   variant?: CodeEditorVariant;
   size?: CodeEditorSize;
   language?: string;
   onLanguageChange?: (language: string) => void;
   showLanguageSelector?: boolean;
+  placeholder?: string;
   className?: string;
 }
 
@@ -67,7 +67,7 @@ const languages = [
   { id: "plaintext", name: "Plain Text" },
 ];
 
-function detectLanguage(code: string): string {
+export function detectLanguage(code: string): string {
   const trimmedCode = code.trim();
 
   if (!trimmedCode) return "plaintext";
@@ -101,10 +101,7 @@ function detectLanguage(code: string): string {
       trimmedCode
     )
   ) {
-    if (
-      /System\.out\.print/m.test(trimmedCode) ||
-      /import java\./m.test(trimmedCode)
-    ) {
+    if (/\.out\.print|mport java\./m.test(trimmedCode)) {
       return "java";
     }
     return "csharp";
@@ -126,10 +123,7 @@ function detectLanguage(code: string): string {
     return "html";
   }
 
-  if (
-    /^{\s*"|^\[\s*{/m.test(trimmedCode) ||
-    /^\s*{[\s\S]*}\s*$/m.test(trimmedCode)
-  ) {
+  if (/^{\s*"|^\[\s*{/m.test(trimmedCode)) {
     try {
       JSON.parse(trimmedCode);
       return "json";
@@ -156,14 +150,31 @@ function detectLanguage(code: string): string {
     return "php";
   }
 
-  if (
-    /^(import|export)\s.*\sfrom\s+["']/m.test(trimmedCode) ||
-    /\.scss$|\.sass$|\$\w+:/m.test(trimmedCode)
-  ) {
-    return "scss";
-  }
-
   return "plaintext";
+}
+
+interface HighlightedCodeProps {
+  code: string;
+  language: string;
+}
+
+async function HighlightedCode({ code, language }: HighlightedCodeProps) {
+  const html = useMemo(() => {
+    if (!code.trim()) return "";
+    return codeToHtml(code, {
+      lang: language === "plaintext" ? "text" : language,
+      theme: "vesper",
+    });
+  }, [code, language]);
+
+  if (!html) return null;
+
+  return (
+    <div
+      className="absolute inset-0 overflow-auto p-4 leading-6 [&>pre]:!bg-transparent [&>pre]:!p-0 [&>pre]:!m-0 [&>pre]:!bg-none"
+      dangerouslySetInnerHTML={{ __html: html }}
+    />
+  );
 }
 
 function CodeEditor({
@@ -174,6 +185,7 @@ function CodeEditor({
   language: controlledLanguage,
   onLanguageChange,
   showLanguageSelector = true,
+  placeholder = "Paste your code here...",
   className,
 }: CodeEditorProps) {
   const [internalLanguage, setInternalLanguage] = useState<string>(
@@ -181,28 +193,12 @@ function CodeEditor({
   );
   const [isLanguageManuallySelected, setIsLanguageManuallySelected] =
     useState(false);
-  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
-  const monacoRef = useRef<Monaco | null>(null);
 
   const language = controlledLanguage || internalLanguage;
 
-  const handleEditorDidMount = useCallback(
-    (editor: editor.IStandaloneCodeEditor, monaco: Monaco) => {
-      editorRef.current = editor;
-      monacoRef.current = monaco;
-
-      monaco.editor.setTheme("vs-dark");
-
-      if (!isLanguageManuallySelected && value) {
-        const detected = detectLanguage(value);
-        setInternalLanguage(detected);
-      }
-    },
-    [value, isLanguageManuallySelected]
-  );
-
   const handleChange = useCallback(
-    (newValue: string | undefined) => {
+    (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+      const newValue = e.target.value;
       if (onChange) {
         onChange(newValue);
       }
@@ -251,39 +247,26 @@ function CodeEditor({
         )}
       </div>
 
-      {/* Editor */}
-      <Editor
-        height="calc(100% - 44px)"
-        language={language}
-        value={value}
-        onChange={handleChange}
-        onMount={handleEditorDidMount}
-        theme="devroast-dark"
-        options={{
-          minimap: { enabled: false },
-          fontSize: 14,
-          fontFamily: "JetBrains Mono, monospace",
-          lineNumbers: "on",
-          scrollBeyondLastLine: false,
-          automaticLayout: true,
-          tabSize: 2,
-          wordWrap: "on",
-          padding: { top: 16, bottom: 16 },
-          renderLineHighlight: "line",
-          cursorBlinking: "smooth",
-          cursorSmoothCaretAnimation: "on",
-          smoothScrolling: true,
-          bracketPairColorization: { enabled: true },
-        }}
-        loading={
-          <div className="flex h-full items-center justify-center bg-bg-input text-text-secondary">
-            Loading editor...
-          </div>
-        }
-      />
+      {/* Editor Container */}
+      <div className="relative h-[calc(100%-44px)]">
+        {/* Syntax Highlighted Output */}
+        <HighlightedCode code={value} language={language} />
+
+        {/* Textarea for input (overlay) */}
+        <textarea
+          value={value}
+          onChange={handleChange}
+          placeholder={placeholder}
+          className="absolute inset-0 w-full h-full resize-none bg-transparent text-transparent caret-accent-green p-4 leading-6 font-mono text-sm focus:outline-none placeholder:text-text-tertiary"
+          spellCheck={false}
+          style={{
+            lineHeight: "1.5rem",
+          }}
+        />
+      </div>
     </div>
   );
 }
 
 export type { CodeEditorSize, CodeEditorVariant };
-export { CodeEditor, detectLanguage, editorVariants, languages };
+export { CodeEditor, editorVariants, languages };

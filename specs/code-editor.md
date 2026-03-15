@@ -6,11 +6,10 @@ Editor de código para a homepage do DevRoast onde usuários colam código e rec
 
 ## Requirements
 
-1. **Syntax Highlighting** - Colorização automática baseada na linguagem
-2. **Auto-detect Language** - Detectar linguagem automaticamente
-3. **Manual Language Selection** - Dropdown para selecionar manualmente (especialmente quando auto-detect falha)
-4. **Editable** - Usuário pode digitar e editar código
-5. **Paste Support** - Suporte para colar código
+1. **Paste/Input** - Área para usuário colar código (não editável, apenas paste)
+2. **Syntax Highlighting** - Colorização automática baseada na linguagem
+3. **Auto-detect Language** - Detectar linguagem automaticamente
+4. **Manual Language Selection** - Dropdown para selecionar manualmente (especialmente quando auto-detect falha)
 
 ---
 

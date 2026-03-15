@@ -42,30 +42,47 @@ export interface CodeEditorProps {
   className?: string;
 }
 
-const languages = [
-  { id: "javascript", name: "JavaScript" },
-  { id: "typescript", name: "TypeScript" },
-  { id: "python", name: "Python" },
-  { id: "java", name: "Java" },
-  { id: "csharp", name: "C#" },
-  { id: "cpp", name: "C++" },
-  { id: "c", name: "C" },
-  { id: "go", name: "Go" },
-  { id: "rust", name: "Rust" },
-  { id: "ruby", name: "Ruby" },
-  { id: "php", name: "PHP" },
-  { id: "swift", name: "Swift" },
-  { id: "kotlin", name: "Kotlin" },
-  { id: "html", name: "HTML" },
-  { id: "css", name: "CSS" },
-  { id: "scss", name: "SCSS" },
-  { id: "json", name: "JSON" },
-  { id: "yaml", name: "YAML" },
-  { id: "markdown", name: "Markdown" },
-  { id: "sql", name: "SQL" },
-  { id: "shell", name: "Shell" },
-  { id: "plaintext", name: "Plain Text" },
+const webLanguages = [
+  "javascript",
+  "typescript",
+  "html",
+  "css",
+  "scss",
+  "json",
 ];
+
+const popularLanguages = [
+  "python",
+  "go",
+  "rust",
+  "java",
+  "csharp",
+  "php",
+  "sql",
+  "shell",
+  "yaml",
+];
+
+const supportedLanguages = [...webLanguages, ...popularLanguages, "plaintext"];
+
+const languageNames: Record<string, string> = {
+  javascript: "JavaScript",
+  typescript: "TypeScript",
+  python: "Python",
+  go: "Go",
+  rust: "Rust",
+  java: "Java",
+  csharp: "C#",
+  php: "PHP",
+  html: "HTML",
+  css: "CSS",
+  scss: "SCSS",
+  json: "JSON",
+  yaml: "YAML",
+  sql: "SQL",
+  shell: "Shell",
+  plaintext: "Plain Text",
+};
 
 export function detectLanguage(code: string): string {
   const trimmedCode = code.trim();
@@ -97,6 +114,18 @@ export function detectLanguage(code: string): string {
   }
 
   if (
+    /^(fn|let\s+mut|use\s+\w+::|impl|struct|enum|pub|match)\s/m.test(
+      trimmedCode
+    )
+  ) {
+    return "rust";
+  }
+
+  if (/^(func|package|import|type|struct|interface)\s/m.test(trimmedCode)) {
+    return "go";
+  }
+
+  if (
     /^(public|private|protected|class|interface|void|static|package)\s/m.test(
       trimmedCode
     )
@@ -107,16 +136,8 @@ export function detectLanguage(code: string): string {
     return "csharp";
   }
 
-  if (
-    /^(fn|let\s+mut|use\s+\w+::|impl|struct|enum|pub|match)\s/m.test(
-      trimmedCode
-    )
-  ) {
-    return "rust";
-  }
-
-  if (/^(func|package|import|type|struct|interface)\s/m.test(trimmedCode)) {
-    return "go";
+  if (/^\$\w+|<?php|mysqli_|echo\s+['"]/m.test(trimmedCode)) {
+    return "php";
   }
 
   if (/^<!DOCTYPE|^<html|^<div|^<span/m.test(trimmedCode)) {
@@ -132,12 +153,8 @@ export function detectLanguage(code: string): string {
     }
   }
 
-  if (
-    /^(#!\/bin\/(bash|sh)|echo|export|if\s+\[|for\s+\w+\s+in)\s/m.test(
-      trimmedCode
-    )
-  ) {
-    return "shell";
+  if (/^\$\w+:/m.test(trimmedCode)) {
+    return "scss";
   }
 
   if (
@@ -146,8 +163,12 @@ export function detectLanguage(code: string): string {
     return "sql";
   }
 
-  if (/^\$\w+|<?php|mysqli_|echo\s+['"]/m.test(trimmedCode)) {
-    return "php";
+  if (
+    /^(#!\/bin\/(bash|sh)|echo|export|if\s+\[|for\s+\w+\s+in)\s/m.test(
+      trimmedCode
+    )
+  ) {
+    return "shell";
   }
 
   return "plaintext";
@@ -238,9 +259,9 @@ function CodeEditor({
             onChange={handleLanguageSelect}
             className="ml-auto rounded border border-border-primary bg-bg-input px-2 py-1 text-xs text-text-secondary focus:border-accent-green focus:outline-none focus:ring-1 focus:ring-accent-green"
           >
-            {languages.map((lang) => (
-              <option key={lang.id} value={lang.id}>
-                {lang.name}
+            {supportedLanguages.map((lang) => (
+              <option key={lang} value={lang}>
+                {languageNames[lang] || lang}
               </option>
             ))}
           </select>
@@ -269,4 +290,4 @@ function CodeEditor({
 }
 
 export type { CodeEditorSize, CodeEditorVariant };
-export { CodeEditor, editorVariants, languages };
+export { CodeEditor, editorVariants, supportedLanguages };

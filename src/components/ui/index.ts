@@ -41,7 +41,7 @@ export {
   type CodeEditorVariant,
   detectLanguage,
   editorVariants,
-  languages,
+  supportedLanguages,
 } from "./code-editor";
 
 export {

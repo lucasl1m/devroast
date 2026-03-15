@@ -90,31 +90,31 @@ console.log(result.language); // 'javascript', 'python', etc.
 
 ## Final Recommendation
 
-### Choice: Monaco Editor ✅
+### Choice: Shiki + Textarea Overlay (ray.so approach) ✅
 
 | Pros | Cons |
 |------|------|
-| Editável nativamente | Pesado (~2MB) |
-| Syntax highlighting built-in | Configuração mais complexa |
-| IntelliSense integrado | |
-| Auto-detect via `monaco.editor.guessLanguage` | |
-| Excelente suporte a muitas linguagens | |
+| Já está no projeto (shiki) | Não é editável (apenas paste) |
+| Excelente qualidade de highlight | Requer textarea separado para input |
+| Tema vesper (que você gosta) | |
+| SSR support | |
 
 ---
 
 ## Implementation Plan
 
-- [x] Decidir abordagem: Monaco Editor ✅
-- [x] Instalar `@monaco-editor/react` ✅
+- [x] Decidir abordagem: Shiki + Textarea ✅
 - [x] Criar `CodeEditor` component em `src/components/ui/code-editor.tsx` ✅
-- [ ] Configurar tema escuro (dark theme) - usando vs-dark
-- [x] Adicionar auto-detect com heuristics customizado ✅
-- [x] Adicionar dropdown para manual override ✅
+- [x] Fix: Handle async codeToHtml (useEffect + useState) ✅
+- [x] Usar Shiki para renderizar código destacado ✅
+- [x] Textarea oculto para input do usuário ✅
+- [x] Adicionar dropdown de linguagem (manual override) ✅
+- [x] Implementar auto-detect com heuristics ✅
 - [x] Exportar em `src/components/ui/index.ts` ✅
 
 ### Dependencies
 
-- `@monaco-editor/react` ✅
+- `shiki` - já instalado
 
 ---
 

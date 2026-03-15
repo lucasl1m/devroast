@@ -1,113 +1,92 @@
 import { useCallback, useState } from "react";
+import type { SupportedLanguage } from "@/lib/languages";
 
-export const webLanguages = [
-  "javascript",
-  "typescript",
-  "html",
-  "css",
-  "scss",
-  "json",
-] as const;
+interface LanguagePattern {
+  pattern: RegExp;
+  language: SupportedLanguage;
+}
 
-export const popularLanguages = [
-  "python",
-  "go",
-  "rust",
-  "java",
-  "csharp",
-  "php",
-  "sql",
-  "shell",
-  "yaml",
-] as const;
-
-export const supportedLanguages = [
-  ...webLanguages,
-  ...popularLanguages,
-  "plaintext",
-] as const;
-
-export type SupportedLanguage = (typeof supportedLanguages)[number];
-
-export const languageNames: Record<SupportedLanguage, string> = {
-  javascript: "JavaScript",
-  typescript: "TypeScript",
-  python: "Python",
-  go: "Go",
-  rust: "Rust",
-  java: "Java",
-  csharp: "C#",
-  php: "PHP",
-  html: "HTML",
-  css: "CSS",
-  scss: "SCSS",
-  json: "JSON",
-  yaml: "YAML",
-  sql: "SQL",
-  shell: "Shell",
-  plaintext: "Plain Text",
-};
+const languagePatterns: LanguagePattern[] = [
+  // TypeScript (check before JavaScript due to more specific patterns)
+  {
+    pattern: /:\s*(string|number|boolean|any|void|never|unknown)\s*[=;,)]/m,
+    language: "typescript",
+  },
+  {
+    pattern: /<\s*[A-Z][a-zA-Z]*\s*>/m,
+    language: "typescript",
+  },
+  {
+    pattern: /interface\s+\w+\s*[{]/m,
+    language: "typescript",
+  },
+  {
+    pattern: /type\s+\w+\s*=/m,
+    language: "typescript",
+  },
+  // JavaScript
+  {
+    pattern: /^(import|export|const|let|var|function|class|interface|type)\s/m,
+    language: "javascript",
+  },
+  // Python
+  {
+    pattern: /^(def|class|import|from|if __name__|print\(|elif)\s/m,
+    language: "python",
+  },
+  // Rust
+  {
+    pattern: /^(fn|let\s+mut|use\s+\w+::|impl|struct|enum|pub|match)\s/m,
+    language: "rust",
+  },
+  // Go
+  {
+    pattern: /^(func|package|import|type|struct|interface)\s/m,
+    language: "go",
+  },
+  // Java
+  {
+    pattern: /System\.out\.print|mport java\./m,
+    language: "java",
+  },
+  // C#
+  {
+    pattern:
+      /^(public|private|protected|class|interface|void|static|package)\s/m,
+    language: "csharp",
+  },
+  // PHP
+  {
+    pattern: /^\$\w+|<?php|mysqli_|echo\s+['"]/m,
+    language: "php",
+  },
+  // HTML
+  {
+    pattern: /^<!DOCTYPE|^<html|^<div|^<span/m,
+    language: "html",
+  },
+  // SCSS
+  {
+    pattern: /^\$\w+:/m,
+    language: "scss",
+  },
+  // SQL
+  {
+    pattern: /^(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP)\s/im,
+    language: "sql",
+  },
+  // Shell
+  {
+    pattern: /^(#!\/bin\/(bash|sh)|echo|export|if\s+\[|for\s+\w+\s+in)\s/m,
+    language: "shell",
+  },
+];
 
 function detectLanguageByPattern(code: string): SupportedLanguage {
   const trimmedCode = code.trim();
-
   if (!trimmedCode) return "plaintext";
 
-  if (
-    /^(import|export|const|let|var|function|class|interface|type)\s/m.test(
-      trimmedCode
-    )
-  ) {
-    if (
-      /:\s*(string|number|boolean|any|void|never|unknown)\s*[=;,)]/m.test(
-        trimmedCode
-      ) ||
-      /<\s*[A-Z][a-zA-Z]*\s*>/m.test(trimmedCode) ||
-      /interface\s+\w+\s*[{]/m.test(trimmedCode) ||
-      /type\s+\w+\s*=/m.test(trimmedCode)
-    ) {
-      return "typescript";
-    }
-    return "javascript";
-  }
-
-  if (
-    /^(def|class|import|from|if __name__|print\(|elif)\s/m.test(trimmedCode)
-  ) {
-    return "python";
-  }
-
-  if (
-    /^(fn|let\s+mut|use\s+\w+::|impl|struct|enum|pub|match)\s/m.test(
-      trimmedCode
-    )
-  ) {
-    return "rust";
-  }
-
-  if (/^(func|package|import|type|struct|interface)\s/m.test(trimmedCode)) {
-    return "go";
-  }
-
-  if (
-    /^(public|private|protected|class|interface|void|static|package)\s/m.test(
-      trimmedCode
-    )
-  ) {
-    if (/\.out\.print|mport java\./m.test(trimmedCode)) {
-      return "java";
-    }
-    return "csharp";
-  }
-
-  if (/^\$\w+|<?php|mysqli_|echo\s+['"]/m.test(trimmedCode)) {
-    return "php";
-  }
-
-  if (/^<!DOCTYPE|^<html|^<div|^<span/m.test(trimmedCode)) {
-    return "html";
-  }
-
+  // Check for JSON first (requires try-catch)
   if (/^{\s*"|^\[\s*{/m.test(trimmedCode)) {
     try {
       JSON.parse(trimmedCode);
@@ -117,22 +96,11 @@ function detectLanguageByPattern(code: string): SupportedLanguage {
     }
   }
 
-  if (/^\$\w+:/m.test(trimmedCode)) {
-    return "scss";
-  }
-
-  if (
-    /^(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP)\s/im.test(trimmedCode)
-  ) {
-    return "sql";
-  }
-
-  if (
-    /^(#!\/bin\/(bash|sh)|echo|export|if\s+\[|for\s+\w+\s+in)\s/m.test(
-      trimmedCode
-    )
-  ) {
-    return "shell";
+  // Find first matching pattern
+  for (const { pattern, language } of languagePatterns) {
+    if (pattern.test(trimmedCode)) {
+      return language;
+    }
   }
 
   return "plaintext";
@@ -147,7 +115,6 @@ interface UseLanguageDetectionReturn {
   language: SupportedLanguage;
   setLanguage: (lang: SupportedLanguage) => void;
   detectLanguage: (code: string) => void;
-  isManuallySelected: boolean;
 }
 
 export function useLanguageDetection({
@@ -183,6 +150,7 @@ export function useLanguageDetection({
     language,
     setLanguage,
     detectLanguage,
-    isManuallySelected,
   };
 }
+
+export { detectLanguageByPattern };

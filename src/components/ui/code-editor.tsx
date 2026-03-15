@@ -3,13 +3,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { twMerge } from "tailwind-merge";
 import { tv, type VariantProps } from "tailwind-variants";
-import {
-  languageNames,
-  type SupportedLanguage,
-  supportedLanguages,
-  useLanguageDetection,
-} from "@/hooks/use-language-detection";
+import { useLanguageDetection } from "@/hooks/use-language-detection";
 import { highlightCode } from "@/lib/highlighter";
+import type { SupportedLanguage } from "@/lib/languages";
+import { EditorHeader } from "./editor-header";
 
 const editorVariants = tv({
   base: "rounded-md border border-border-primary overflow-hidden bg-bg-input font-mono",
@@ -109,36 +106,21 @@ function CodeEditor({
     [onChange, detectLanguage]
   );
 
-  const handleLanguageSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setLanguage(e.target.value as SupportedLanguage);
-  };
+  const handleLanguageChange = useCallback(
+    (newLang: SupportedLanguage) => {
+      setLanguage(newLang);
+    },
+    [setLanguage]
+  );
 
   return (
     <div className={twMerge(editorVariants({ variant, size, className }))}>
-      {/* Header */}
-      <div className="flex items-center gap-3 border-b border-border-primary bg-bg-surface px-4 py-2">
-        <div className="flex gap-1.5">
-          <span className="h-3 w-3 rounded-full bg-accent-red" />
-          <span className="h-3 w-3 rounded-full bg-accent-amber" />
-          <span className="h-3 w-3 rounded-full bg-accent-green" />
-        </div>
+      <EditorHeader
+        language={language}
+        onLanguageChange={handleLanguageChange}
+        showLanguageSelector={showLanguageSelector}
+      />
 
-        {showLanguageSelector && (
-          <select
-            value={language}
-            onChange={handleLanguageSelect}
-            className="ml-auto rounded border border-border-primary bg-bg-input px-2 py-1 text-xs text-text-secondary focus:border-accent-green focus:outline-none focus:ring-1 focus:ring-accent-green"
-          >
-            {supportedLanguages.map((lang) => (
-              <option key={lang} value={lang}>
-                {languageNames[lang]}
-              </option>
-            ))}
-          </select>
-        )}
-      </div>
-
-      {/* Editor Container */}
       <div className="relative h-[calc(100%-44px)]">
         <HighlightedCode code={value} language={language} />
 

@@ -1,9 +1,13 @@
 export {
+  detectLanguageByPattern,
+  useLanguageDetection,
+} from "@/hooks/use-language-detection";
+export {
+  languageAliases,
   languageNames,
   type SupportedLanguage,
   supportedLanguages,
-  useLanguageDetection,
-} from "@/hooks/use-language-detection";
+} from "@/lib/languages";
 export {
   Badge,
   type BadgeProps,
@@ -43,13 +47,13 @@ export {
   type CodeEditorVariant,
   editorVariants,
 } from "./code-editor";
-
 export {
   DiffLine,
   type DiffLineProps,
   type DiffLineVariant,
   diffLineVariants,
 } from "./diff-line";
+export { EditorHeader, type EditorHeaderProps } from "./editor-header";
 
 export {
   Input,

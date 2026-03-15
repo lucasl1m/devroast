@@ -1,4 +1,5 @@
-import { codeToHtml } from "shiki";
+import { highlightCode } from "@/lib/highlighter";
+import { languageAliases } from "@/lib/languages";
 
 export interface CodeBlockProps {
   code: string;
@@ -7,36 +8,23 @@ export interface CodeBlockProps {
   showLineNumbers?: boolean;
 }
 
-const languageMap: Record<string, string> = {
-  js: "javascript",
-  ts: "typescript",
-  py: "python",
-  rb: "ruby",
-  sh: "bash",
-  shell: "bash",
-  yml: "yaml",
-};
-
 export async function CodeBlock({
   code,
   lang = "javascript",
   filename,
   showLineNumbers = true,
 }: CodeBlockProps) {
-  const normalizedLang = languageMap[lang] || lang;
+  const normalizedLang = languageAliases[lang] || lang;
 
-  const html = await codeToHtml(code, {
+  const html = await highlightCode({
+    code,
     lang: normalizedLang,
-    theme: "vesper",
   });
 
-  const lines = code
-    .split("\n")
-    .map((line, i) => ({ content: line, id: `line-${i}` }));
+  const lineCount = code.split("\n").length;
 
   return (
     <div className="rounded-md border border-border-primary overflow-hidden bg-bg-input font-mono text-sm">
-      {/* Header */}
       <div className="flex items-center gap-3 border-b border-border-primary px-0 py-2">
         <div className="flex gap-1.5 pl-4">
           <span className="h-2.5 w-2.5 rounded-full bg-accent-red" />
@@ -50,13 +38,12 @@ export async function CodeBlock({
         )}
       </div>
 
-      {/* Content */}
       <div className="flex">
         {showLineNumbers && (
           <div className="flex flex-col border-r border-border-primary bg-bg-surface pr-3 pl-2 py-3 text-right text-text-tertiary select-none">
-            {lines.map((line) => (
-              <span key={line.id} className="leading-6">
-                {lines.indexOf(line) + 1}
+            {Array.from({ length: lineCount }, (_, i) => (
+              <span key={i} className="leading-6">
+                {i + 1}
               </span>
             ))}
           </div>

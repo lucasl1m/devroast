@@ -121,7 +121,7 @@ function CodeEditor({
         showLanguageSelector={showLanguageSelector}
       />
 
-      <div className="relative h-[calc(100%-44px)]">
+      <div className="relative h-[calc(100%-40px)]">
         <HighlightedCode code={value} language={language} />
 
         <textarea

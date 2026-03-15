@@ -32,28 +32,28 @@ export default function HomepageClient({ initialData }: HomepageClientProps) {
 
   return (
     <main className="min-h-screen bg-bg-page">
-      <div className="max-w-[960px] mx-auto px-10 pt-20 pb-20">
+      <div className="max-w-[960px] mx-auto px-10 pt-[80px]">
         {/* Hero Title */}
-        <div className="mb-12">
+        <div className="flex flex-col gap-3 mb-12">
           <h1 className="flex items-center gap-3 text-[36px] font-bold font-mono">
             <span className="text-accent-green">$</span>
             <span className="text-text-primary">
               paste your code. get roasted.
             </span>
           </h1>
-          <p className="font-code text-text-secondary text-sm mt-3">
+          <p className="font-code text-text-secondary text-sm">
             {"//"} drop your code below and we&apos;ll rate it — brutally honest
             or full roast mode
           </p>
         </div>
 
         {/* Code Editor */}
-        <div className="mb-6">
+        <div className="w-[780px] mb-6">
           <CodeEditor value={code} onChange={setCode} size="default" />
         </div>
 
         {/* Actions Bar */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="w-[780px] flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-[10px]">
               <Toggle checked={roastMode} onCheckedChange={setRoastMode} />

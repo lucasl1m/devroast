@@ -1,4 +1,6 @@
-import { useCallback, useMemo, useState } from "react";
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
 import { codeToHtml } from "shiki";
 import { twMerge } from "tailwind-merge";
 import { tv, type VariantProps } from "tailwind-variants";
@@ -179,14 +181,32 @@ interface HighlightedCodeProps {
   language: string;
 }
 
-async function HighlightedCode({ code, language }: HighlightedCodeProps) {
-  const html = useMemo(() => {
-    if (!code.trim()) return "";
-    return codeToHtml(code, {
+function HighlightedCode({ code, language }: HighlightedCodeProps) {
+  const [html, setHtml] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!code.trim()) {
+      setHtml("");
+      return;
+    }
+
+    setLoading(true);
+    codeToHtml(code, {
       lang: language === "plaintext" ? "text" : language,
       theme: "vesper",
-    });
+    })
+      .then(setHtml)
+      .finally(() => setLoading(false));
   }, [code, language]);
+
+  if (loading) {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center bg-bg-input text-text-secondary">
+        <span className="text-sm">Highlighting...</span>
+      </div>
+    );
+  }
 
   if (!html) return null;
 

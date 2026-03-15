@@ -5,7 +5,7 @@ import {
 } from "@/lib/languages";
 
 interface EditorHeaderProps {
-  language?: SupportedLanguage;
+  language?: SupportedLanguage | null;
   onLanguageChange?: (language: SupportedLanguage) => void;
   showLanguageSelector?: boolean;
   filename?: string;
@@ -39,10 +39,13 @@ function EditorHeader({
         <div className="ml-auto flex items-center gap-1">
           <span className="text-accent-green text-xs font-mono">&lt;/&gt;</span>
           <select
-            value={language}
+            value={language || ""}
             onChange={handleLanguageSelect}
             className="rounded border border-border-primary bg-bg-input px-2 py-1 text-xs text-text-secondary focus:border-accent-green focus:outline-none focus:ring-1 focus:ring-accent-green"
           >
+            <option value="" disabled>
+              Select
+            </option>
             {supportedLanguages.map((lang) => (
               <option key={lang} value={lang}>
                 {languageNames[lang]}

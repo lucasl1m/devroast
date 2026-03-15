@@ -49,7 +49,7 @@ export interface CodeEditorProps {
 
 interface HighlightedCodeProps {
   code: string;
-  language: SupportedLanguage;
+  language: SupportedLanguage | null;
 }
 
 function HighlightedCode({ code, language }: HighlightedCodeProps) {
@@ -57,18 +57,19 @@ function HighlightedCode({ code, language }: HighlightedCodeProps) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (!language || !code.trim()) {
+      setHtml("");
+      return;
+    }
+
     setLoading(true);
     highlightCode({ code, lang: language })
       .then(setHtml)
       .finally(() => setLoading(false));
   }, [code, language]);
 
-  if (loading) {
-    return (
-      <div className="absolute inset-0 flex items-center justify-center bg-bg-input text-text-secondary">
-        <span className="text-sm">Highlighting...</span>
-      </div>
-    );
+  if (!language || loading) {
+    return null;
   }
 
   if (!html) return null;
@@ -86,14 +87,12 @@ function CodeEditor({
   onChange,
   variant = "default",
   size = "default",
-  language: controlledLanguage,
   onLanguageChange,
   showLanguageSelector = true,
   placeholder = "Paste your code here...",
   className,
 }: CodeEditorProps) {
   const { language, setLanguage, detectLanguage } = useLanguageDetection({
-    defaultLanguage: controlledLanguage || "javascript",
     onLanguageChange,
   });
 

@@ -82,9 +82,9 @@ const languagePatterns: LanguagePattern[] = [
   },
 ];
 
-function detectLanguageByPattern(code: string): SupportedLanguage {
+function detectLanguageByPattern(code: string): SupportedLanguage | null {
   const trimmedCode = code.trim();
-  if (!trimmedCode) return "plaintext";
+  if (!trimmedCode) return null;
 
   // Check for JSON first (requires try-catch)
   if (/^{\s*"|^\[\s*{/m.test(trimmedCode)) {
@@ -103,26 +103,24 @@ function detectLanguageByPattern(code: string): SupportedLanguage {
     }
   }
 
-  return "plaintext";
+  return null;
 }
 
 interface UseLanguageDetectionOptions {
-  defaultLanguage?: SupportedLanguage;
   onLanguageChange?: (language: SupportedLanguage) => void;
 }
 
 interface UseLanguageDetectionReturn {
-  language: SupportedLanguage;
+  language: SupportedLanguage | null;
   setLanguage: (lang: SupportedLanguage) => void;
   detectLanguage: (code: string) => void;
+  isManuallySelected: boolean;
 }
 
 export function useLanguageDetection({
-  defaultLanguage = "javascript",
   onLanguageChange,
 }: UseLanguageDetectionOptions = {}): UseLanguageDetectionReturn {
-  const [language, setLanguageState] =
-    useState<SupportedLanguage>(defaultLanguage);
+  const [language, setLanguageState] = useState<SupportedLanguage | null>(null);
   const [isManuallySelected, setIsManuallySelected] = useState(false);
 
   const setLanguage = useCallback(
@@ -136,20 +134,21 @@ export function useLanguageDetection({
 
   const detectLanguage = useCallback(
     (code: string) => {
-      if (isManuallySelected) return;
+      if (isManuallySelected || !code.trim()) return;
 
       const detected = detectLanguageByPattern(code);
-      if (detected !== "plaintext" && detected !== language) {
+      if (detected) {
         setLanguageState(detected);
       }
     },
-    [isManuallySelected, language]
+    [isManuallySelected]
   );
 
   return {
     language,
     setLanguage,
     detectLanguage,
+    isManuallySelected,
   };
 }
 

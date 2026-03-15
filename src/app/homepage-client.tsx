@@ -32,10 +32,10 @@ export default function HomepageClient({ initialData }: HomepageClientProps) {
 
   return (
     <main className="min-h-screen bg-bg-page">
-      <div className="w-full max-w-[1440px] px-10 pt-[80px]">
-        {/* Hero Title */}
-        <div className="flex flex-col gap-3 mb-12">
-          <h1 className="flex items-center gap-3 text-[36px] font-bold font-mono">
+      <div className="w-full max-w-[1440px] mx-auto px-10 pt-[80px]">
+        {/* Hero Title - Centralizado */}
+        <div className="w-[660px] mx-auto flex flex-col gap-3 mb-12 text-center">
+          <h1 className="flex items-center justify-center gap-3 text-[36px] font-bold font-mono">
             <span className="text-accent-green">$</span>
             <span className="text-text-primary">
               paste your code. get roasted.
@@ -47,13 +47,13 @@ export default function HomepageClient({ initialData }: HomepageClientProps) {
           </p>
         </div>
 
-        {/* Code Editor */}
-        <div className="w-[780px] mb-6">
+        {/* Code Editor - Centralizado */}
+        <div className="w-[780px] mx-auto mb-6">
           <CodeEditor value={code} onChange={setCode} size="default" />
         </div>
 
-        {/* Actions Bar */}
-        <div className="w-[780px] flex items-center justify-between mb-8">
+        {/* Actions Bar - Centralizado */}
+        <div className="w-[780px] mx-auto flex items-center justify-between mb-8">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-[10px]">
               <Toggle checked={roastMode} onCheckedChange={setRoastMode} />
@@ -75,8 +75,8 @@ export default function HomepageClient({ initialData }: HomepageClientProps) {
           </Button>
         </div>
 
-        {/* Footer Hint */}
-        <div className="flex items-center justify-center gap-6 mb-[60px] font-code text-text-tertiary text-xs">
+        {/* Footer Hint - Centralizado */}
+        <div className="w-[316px] mx-auto flex items-center justify-center gap-6 mb-[60px] font-code text-text-tertiary text-xs">
           <span>{data.stats.totalRoasted.toLocaleString()} codes roasted</span>
           <span>·</span>
           <span>
@@ -86,8 +86,8 @@ export default function HomepageClient({ initialData }: HomepageClientProps) {
           </span>
         </div>
 
-        {/* Leaderboard Preview */}
-        <div className="w-[960px]">
+        {/* Leaderboard Preview - Centralizado */}
+        <div className="w-[960px] mx-auto">
           {/* Title */}
           <div className="flex items-center justify-between mb-3">
             <h2 className="flex items-center gap-2 font-mono text-sm font-bold">

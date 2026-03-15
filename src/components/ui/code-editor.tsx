@@ -1,9 +1,15 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { codeToHtml } from "shiki";
 import { twMerge } from "tailwind-merge";
 import { tv, type VariantProps } from "tailwind-variants";
+import {
+  languageNames,
+  type SupportedLanguage,
+  supportedLanguages,
+  useLanguageDetection,
+} from "@/hooks/use-language-detection";
+import { highlightCode } from "@/lib/highlighter";
 
 const editorVariants = tv({
   base: "rounded-md border border-border-primary overflow-hidden bg-bg-input font-mono",
@@ -37,148 +43,16 @@ export interface CodeEditorProps {
   onChange?: (value: string) => void;
   variant?: CodeEditorVariant;
   size?: CodeEditorSize;
-  language?: string;
-  onLanguageChange?: (language: string) => void;
+  language?: SupportedLanguage;
+  onLanguageChange?: (language: SupportedLanguage) => void;
   showLanguageSelector?: boolean;
   placeholder?: string;
   className?: string;
 }
 
-const webLanguages = [
-  "javascript",
-  "typescript",
-  "html",
-  "css",
-  "scss",
-  "json",
-];
-
-const popularLanguages = [
-  "python",
-  "go",
-  "rust",
-  "java",
-  "csharp",
-  "php",
-  "sql",
-  "shell",
-  "yaml",
-];
-
-const supportedLanguages = [...webLanguages, ...popularLanguages, "plaintext"];
-
-const languageNames: Record<string, string> = {
-  javascript: "JavaScript",
-  typescript: "TypeScript",
-  python: "Python",
-  go: "Go",
-  rust: "Rust",
-  java: "Java",
-  csharp: "C#",
-  php: "PHP",
-  html: "HTML",
-  css: "CSS",
-  scss: "SCSS",
-  json: "JSON",
-  yaml: "YAML",
-  sql: "SQL",
-  shell: "Shell",
-  plaintext: "Plain Text",
-};
-
-export function detectLanguage(code: string): string {
-  const trimmedCode = code.trim();
-
-  if (!trimmedCode) return "plaintext";
-
-  if (
-    /^(import|export|const|let|var|function|class|interface|type)\s/m.test(
-      trimmedCode
-    )
-  ) {
-    if (
-      /:\s*(string|number|boolean|any|void|never|unknown)\s*[=;,)]/m.test(
-        trimmedCode
-      ) ||
-      /<\s*[A-Z][a-zA-Z]*\s*>/m.test(trimmedCode) ||
-      /interface\s+\w+\s*[{]/m.test(trimmedCode) ||
-      /type\s+\w+\s*=/m.test(trimmedCode)
-    ) {
-      return "typescript";
-    }
-    return "javascript";
-  }
-
-  if (
-    /^(def|class|import|from|if __name__|print\(|elif)\s/m.test(trimmedCode)
-  ) {
-    return "python";
-  }
-
-  if (
-    /^(fn|let\s+mut|use\s+\w+::|impl|struct|enum|pub|match)\s/m.test(
-      trimmedCode
-    )
-  ) {
-    return "rust";
-  }
-
-  if (/^(func|package|import|type|struct|interface)\s/m.test(trimmedCode)) {
-    return "go";
-  }
-
-  if (
-    /^(public|private|protected|class|interface|void|static|package)\s/m.test(
-      trimmedCode
-    )
-  ) {
-    if (/\.out\.print|mport java\./m.test(trimmedCode)) {
-      return "java";
-    }
-    return "csharp";
-  }
-
-  if (/^\$\w+|<?php|mysqli_|echo\s+['"]/m.test(trimmedCode)) {
-    return "php";
-  }
-
-  if (/^<!DOCTYPE|^<html|^<div|^<span/m.test(trimmedCode)) {
-    return "html";
-  }
-
-  if (/^{\s*"|^\[\s*{/m.test(trimmedCode)) {
-    try {
-      JSON.parse(trimmedCode);
-      return "json";
-    } catch {
-      // Not valid JSON
-    }
-  }
-
-  if (/^\$\w+:/m.test(trimmedCode)) {
-    return "scss";
-  }
-
-  if (
-    /^(SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP)\s/im.test(trimmedCode)
-  ) {
-    return "sql";
-  }
-
-  if (
-    /^(#!\/bin\/(bash|sh)|echo|export|if\s+\[|for\s+\w+\s+in)\s/m.test(
-      trimmedCode
-    )
-  ) {
-    return "shell";
-  }
-
-  return "plaintext";
-}
-
 interface HighlightedCodeProps {
   code: string;
-  language: string;
+  language: SupportedLanguage;
 }
 
 function HighlightedCode({ code, language }: HighlightedCodeProps) {
@@ -186,16 +60,8 @@ function HighlightedCode({ code, language }: HighlightedCodeProps) {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!code.trim()) {
-      setHtml("");
-      return;
-    }
-
     setLoading(true);
-    codeToHtml(code, {
-      lang: language === "plaintext" ? "text" : language,
-      theme: "vesper",
-    })
+    highlightCode({ code, lang: language })
       .then(setHtml)
       .finally(() => setLoading(false));
   }, [code, language]);
@@ -229,38 +95,22 @@ function CodeEditor({
   placeholder = "Paste your code here...",
   className,
 }: CodeEditorProps) {
-  const [internalLanguage, setInternalLanguage] = useState<string>(
-    controlledLanguage || "javascript"
-  );
-  const [isLanguageManuallySelected, setIsLanguageManuallySelected] =
-    useState(false);
-
-  const language = controlledLanguage || internalLanguage;
+  const { language, setLanguage, detectLanguage } = useLanguageDetection({
+    defaultLanguage: controlledLanguage || "javascript",
+    onLanguageChange,
+  });
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
       const newValue = e.target.value;
-      if (onChange) {
-        onChange(newValue);
-      }
-
-      if (!isLanguageManuallySelected && newValue) {
-        const detected = detectLanguage(newValue);
-        if (detected !== language && detected !== "plaintext") {
-          setInternalLanguage(detected);
-        }
-      }
+      onChange?.(newValue);
+      detectLanguage(newValue);
     },
-    [onChange, isLanguageManuallySelected, language]
+    [onChange, detectLanguage]
   );
 
   const handleLanguageSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newLang = e.target.value;
-    setIsLanguageManuallySelected(true);
-    setInternalLanguage(newLang);
-    if (onLanguageChange) {
-      onLanguageChange(newLang);
-    }
+    setLanguage(e.target.value as SupportedLanguage);
   };
 
   return (
@@ -281,7 +131,7 @@ function CodeEditor({
           >
             {supportedLanguages.map((lang) => (
               <option key={lang} value={lang}>
-                {languageNames[lang] || lang}
+                {languageNames[lang]}
               </option>
             ))}
           </select>
@@ -290,10 +140,8 @@ function CodeEditor({
 
       {/* Editor Container */}
       <div className="relative h-[calc(100%-44px)]">
-        {/* Syntax Highlighted Output */}
         <HighlightedCode code={value} language={language} />
 
-        {/* Textarea for input (overlay) */}
         <textarea
           value={value}
           onChange={handleChange}
@@ -310,4 +158,4 @@ function CodeEditor({
 }
 
 export type { CodeEditorSize, CodeEditorVariant };
-export { CodeEditor, editorVariants, supportedLanguages };
+export { CodeEditor, editorVariants };

@@ -1,11 +1,16 @@
 export {
+  languageNames,
+  type SupportedLanguage,
+  supportedLanguages,
+  useLanguageDetection,
+} from "@/hooks/use-language-detection";
+export {
   Badge,
   type BadgeProps,
   type BadgeSize,
   type BadgeVariant,
   badgeVariants,
 } from "./badge";
-
 export {
   Button,
   type ButtonProps,
@@ -13,7 +18,6 @@ export {
   type ButtonVariant,
   buttonVariants,
 } from "./button";
-
 export {
   Card,
   CardDescription,
@@ -31,17 +35,13 @@ export {
   type CardVariant,
   cardVariants,
 } from "./card";
-
 export { CodeBlock, type CodeBlockProps } from "./code-block-client";
-
 export {
   CodeEditor,
   type CodeEditorProps,
   type CodeEditorSize,
   type CodeEditorVariant,
-  detectLanguage,
   editorVariants,
-  supportedLanguages,
 } from "./code-editor";
 
 export {

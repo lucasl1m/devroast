@@ -8,6 +8,8 @@ import { highlightCode } from "@/lib/highlighter";
 import type { SupportedLanguage } from "@/lib/languages";
 import { EditorHeader } from "./editor-header";
 
+const MAX_CODE_LENGTH = 10000;
+
 const editorVariants = tv({
   base: "rounded-md border border-border-primary overflow-hidden bg-bg-input font-mono",
   variants: {
@@ -45,6 +47,8 @@ export interface CodeEditorProps {
   showLanguageSelector?: boolean;
   placeholder?: string;
   className?: string;
+  maxLength?: number;
+  onLimitChange?: (isOverLimit: boolean) => void;
 }
 
 interface HighlightedCodeProps {
@@ -91,10 +95,18 @@ function CodeEditor({
   showLanguageSelector = true,
   placeholder = "Paste your code here...",
   className,
+  maxLength = MAX_CODE_LENGTH,
+  onLimitChange,
 }: CodeEditorProps) {
   const { language, setLanguage, detectLanguage } = useLanguageDetection({
     onLanguageChange,
   });
+
+  const isOverLimit = value.length > maxLength;
+
+  useEffect(() => {
+    onLimitChange?.(isOverLimit);
+  }, [isOverLimit, onLimitChange]);
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -134,9 +146,20 @@ function CodeEditor({
           }}
         />
       </div>
+
+      {/* Character Limit Footer */}
+      <div className="flex items-center justify-end h-8 px-4 border-t border-border-primary bg-bg-surface">
+        <span
+          className={twMerge(
+            "font-mono text-xs",
+            isOverLimit ? "text-accent-red" : "text-text-tertiary"
+          )}
+        >
+          {value.length.toLocaleString()} / {maxLength.toLocaleString()}
+        </span>
+      </div>
     </div>
   );
 }
 
-export type { CodeEditorSize, CodeEditorVariant };
 export { CodeEditor, editorVariants };

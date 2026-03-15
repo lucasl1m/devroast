@@ -28,6 +28,7 @@ interface HomepageClientProps {
 export default function HomepageClient({ initialData }: HomepageClientProps) {
   const [roastMode, setRoastMode] = useState(true);
   const [code, setCode] = useState("");
+  const [isOverLimit, setIsOverLimit] = useState(false);
   const data = initialData;
 
   return (
@@ -49,7 +50,12 @@ export default function HomepageClient({ initialData }: HomepageClientProps) {
 
         {/* Code Editor - Centralizado */}
         <div className="w-[780px] mx-auto mb-6">
-          <CodeEditor value={code} onChange={setCode} size="default" />
+          <CodeEditor
+            value={code}
+            onChange={setCode}
+            onLimitChange={setIsOverLimit}
+            size="default"
+          />
         </div>
 
         {/* Actions Bar - Centralizado */}
@@ -70,7 +76,7 @@ export default function HomepageClient({ initialData }: HomepageClientProps) {
             </span>
           </div>
 
-          <Button variant="primary" size="default">
+          <Button variant="primary" size="default" disabled={isOverLimit}>
             $ roast_my_code
           </Button>
         </div>

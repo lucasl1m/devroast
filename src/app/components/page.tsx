@@ -11,7 +11,6 @@ import {
   CodeBlock,
   DiffLine,
   Input,
-  InputIcon,
   InputLabel,
   ScoreRing,
   Toggle,
@@ -286,34 +285,38 @@ export default function ComponentsPage() {
               <h3 className="text-sm text-text-tertiary uppercase tracking-wider">
                 Default
               </h3>
-              <CodeBlock
-                code={sampleCode}
-                filename="calculate.js"
-                lang="javascript"
-              />
+              <CodeBlock>
+                <CodeBlock.Header filename="calculate.js" />
+                <CodeBlock.Content code={sampleCode} lang="javascript" />
+              </CodeBlock>
             </div>
 
             <div className="space-y-4">
               <h3 className="text-sm text-text-tertiary uppercase tracking-wider">
                 Without line numbers
               </h3>
-              <CodeBlock
-                code={sampleCode}
-                filename="calculate.js"
-                lang="javascript"
-                showLineNumbers={false}
-              />
+              <CodeBlock>
+                <CodeBlock.Header filename="calculate.js" />
+                <CodeBlock.Content
+                  code={sampleCode}
+                  lang="javascript"
+                  showLineNumbers={false}
+                />
+              </CodeBlock>
             </div>
 
             <div className="space-y-4">
               <h3 className="text-sm text-text-tertiary uppercase tracking-wider">
                 Without filename
               </h3>
-              <CodeBlock
-                code={sampleCode}
-                lang="javascript"
-                showLineNumbers={true}
-              />
+              <CodeBlock>
+                <CodeBlock.Header />
+                <CodeBlock.Content
+                  code={sampleCode}
+                  lang="javascript"
+                  showLineNumbers={true}
+                />
+              </CodeBlock>
             </div>
           </div>
         </section>
@@ -473,9 +476,12 @@ export default function ComponentsPage() {
               </h3>
               <div className="space-y-2 max-w-md">
                 <InputLabel>Search</InputLabel>
-                <Input placeholder="Search...">
-                  <InputIcon>🔍</InputIcon>
-                </Input>
+                <div className="relative">
+                  <Input placeholder="Search..." className="pr-8" />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-text-tertiary">
+                    🔍
+                  </span>
+                </div>
               </div>
             </div>
 

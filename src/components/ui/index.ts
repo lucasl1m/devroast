@@ -39,7 +39,12 @@ export {
   type CardVariant,
   cardVariants,
 } from "./card";
-export { CodeBlock, type CodeBlockProps } from "./code-block";
+export {
+  CodeBlock,
+  type CodeBlockContentProps,
+  type CodeBlockHeaderProps,
+  type CodeBlockProps,
+} from "./code-block";
 export {
   CodeEditor,
   type CodeEditorProps,

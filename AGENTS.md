@@ -37,4 +37,45 @@ pnpm dev      # Dev server
 pnpm build    # Production build
 pnpm lint     # Biome lint
 pnpm format   # Biome format
+pnpm db:push  # Drizzle push schema
+pnpm db:seed  # Seed database
 ```
+
+## Folder Structure
+
+```
+src/
+├── app/                    # Next.js App Router
+│   ├── api/               # API routes
+│   │   └── trpc/          # tRPC API
+│   ├── layout.tsx         # Root layout
+│   └── page.tsx           # Home page
+├── components/
+│   ├── ui/                # UI components
+│   ├── home-stats.tsx     # Stats com tRPC
+│   └── home-editor.tsx    # Editor client component
+├── server/
+│   └── trpc/              # tRPC setup
+│       ├── init.ts
+│       ├── client.tsx
+│       ├── server.tsx
+│       ├── query-client.ts
+│       └── routers/
+└── db/                    # Database
+    ├── schema/
+    └── queries/
+```
+
+## Specs
+
+Specs devem ser criadas em `specs/` antes de implementar features.
+
+Ver `specs/AGENTS.md` para formato de specs.
+
+## tRPC
+
+Ver `src/server/trpc/AGENTS.md` para padrões de tRPC.
+
+## Components
+
+Ver `src/components/AGENTS.md` para padrões de componentes.

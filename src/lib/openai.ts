@@ -12,6 +12,16 @@ export async function generateRoast(
   systemPrompt: string,
   userPrompt: string
 ): Promise<string> {
+  if (!API_KEY) {
+    console.error("GEMINI_API_KEY not configured");
+    return JSON.stringify({
+      verdict: "Service temporarily unavailable",
+      score: 5,
+      feedbacks: [],
+      diff: [],
+    });
+  }
+
   const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
 
   const response = await fetch(
@@ -36,6 +46,16 @@ export async function generateRoast(
   );
 
   const data = await response.json();
+
+  if (data.error) {
+    console.error("Gemini API error:", data.error);
+    return JSON.stringify({
+      verdict: "Service error",
+      score: 5,
+      feedbacks: [],
+      diff: [],
+    });
+  }
 
   if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
     const text = data.candidates[0].content.parts[0].text;

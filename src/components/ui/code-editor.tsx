@@ -218,7 +218,8 @@ function CodeEditor({
             isOverLimit ? "text-accent-red" : "text-text-tertiary"
           )}
         >
-          {value.length.toLocaleString()} / {maxLength.toLocaleString()}
+          {value.length.toLocaleString("en-US")} /{" "}
+          {maxLength.toLocaleString("en-US")}
         </span>
       </div>
     </div>

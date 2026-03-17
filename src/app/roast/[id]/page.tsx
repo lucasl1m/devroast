@@ -117,10 +117,10 @@ export default function RoastResultPage({
               your_submission
             </h2>
           </div>
-          <div className="h-[424px] rounded-md border border-border-primary bg-bg-input overflow-hidden">
-            <CodeBlock>
-              <CodeBlock.Content code={SAMPLE_CODE} lang="javascript" />
-            </CodeBlock>
+          <div className="h-[424px] rounded-md border border-border-primary bg-bg-input overflow-hidden p-4">
+            <pre className="font-mono text-sm text-text-primary whitespace-pre-wrap">
+              {SAMPLE_CODE}
+            </pre>
           </div>
         </section>
 

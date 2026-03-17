@@ -1,4 +1,4 @@
-import * as Switch from "@radix-ui/react-switch";
+import { Switch } from "@base-ui/react/switch";
 import { twMerge } from "tailwind-merge";
 import { tv, type VariantProps } from "tailwind-variants";
 
@@ -6,7 +6,7 @@ const toggleVariants = tv({
   base: "peer inline-flex shrink-0 cursor-pointer items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-green focus-visible:ring-offset-2 focus-visible:ring-offset-bg-page disabled:cursor-not-allowed disabled:opacity-50",
   variants: {
     variant: {
-      default: "bg-border-primary data-[state=checked]:bg-accent-green",
+      default: "bg-border-primary data-[checked]:bg-accent-green",
     },
     size: {
       default: "h-[22px] w-[40px] p-1",
@@ -31,12 +31,12 @@ const toggleKnobVariants = tv({
     {
       size: "default",
       className:
-        "data-[state=checked]:translate-x-[18px] data-[state=unchecked]:translate-x-0",
+        "data-[checked]:translate-x-[18px] data-[unchecked]:translate-x-0",
     },
     {
       size: "sm",
       className:
-        "data-[state=checked]:translate-x-[14px] data-[state=unchecked]:translate-x-0",
+        "data-[checked]:translate-x-[14px] data-[unchecked]:translate-x-0",
     },
   ],
   defaultVariants: {
@@ -75,7 +75,7 @@ function Toggle({
       <Switch.Thumb
         className={twMerge(
           toggleKnobVariants({ size }),
-          "data-[state=checked]:bg-neutral-900"
+          "data-[checked]:bg-neutral-900"
         )}
       />
     </Switch.Root>

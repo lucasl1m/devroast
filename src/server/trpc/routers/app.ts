@@ -7,7 +7,7 @@ import {
   getStats as getStatsDb,
   getSubmissionById,
 } from "@/db/queries/submissions";
-import { openai } from "@/lib/openai";
+import { generateRoast } from "@/lib/openai";
 import { baseProcedure, createTRPCRouter } from "../init";
 
 export const appRouter = createTRPCRouter({
@@ -122,20 +122,11 @@ ${input.code}
 
 Provide your analysis in the JSON format specified.`;
 
-      const completion = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
-        ],
-        response_format: { type: "json_object" },
-      });
+      const responseText = await generateRoast(systemPrompt, userPrompt);
 
-      const analysis = JSON.parse(
-        completion.choices[0].message.content || "{}"
-      ) as AnalysisData;
+      const analysis = JSON.parse(responseText || "{}") as AnalysisData;
 
-      const result = await createSubmissionWithAnalysis({
+      const submission = await createSubmissionWithAnalysis({
         code: input.code,
         language: input.language as CodeSubmissionRow["language"],
         roastMode: input.roastMode as CodeSubmissionRow["roastMode"],
@@ -144,7 +135,7 @@ Provide your analysis in the JSON format specified.`;
         analysis,
       });
 
-      return { id: result.id };
+      return { id: submission.id };
     }),
   getRoastById: baseProcedure
     .input(z.object({ id: z.string().uuid() }))

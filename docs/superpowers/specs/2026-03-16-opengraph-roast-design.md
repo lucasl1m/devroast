@@ -16,9 +16,15 @@ Generate OpenGraph images automatically when roast results are shared on social 
 
 Create `/api/og/[id]` route that:
 - Receives roast ID from URL
-- Fetches roast data from database via tRPC
+- Fetches roast data directly from database using `getSubmissionById` (not via tRPC)
 - Renders OG image using Takumi
 - Returns image with appropriate cache headers
+
+### Error Handling
+
+- Invalid UUID → 400 Bad Request
+- Roast not found → 404 Not Found
+- DB error → 500 Internal Server Error
 
 ### 2. Meta Tags
 
@@ -86,7 +92,7 @@ pnpm add @takumi-rs/image-response
 Update `next.config.ts`:
 ```typescript
 export const config = {
-  serverExternalPackages: ["@takumi-rs/core"],
+  serverExternalPackages: ["@takumi-rs/image-response"],
 };
 ```
 
@@ -99,7 +105,25 @@ export const config = {
 ## Considerations
 
 - Takumi uses JSX with Tailwind CSS (similar to Next.js ImageResponse)
-- Default fonts are Geist and Geist Mono - match with project fonts (JetBrains Mono, IBM Plex Mono)
+- Custom fonts must be configured for JetBrains Mono and IBM Plex Mono:
+
+```typescript
+const fonts = [
+  {
+    name: "JetBrains Mono",
+    data: await fetch(".../JetBrainsMono-Regular.ttf").then(r => r.arrayBuffer()),
+    style: "normal",
+    weight: 400,
+  },
+  {
+    name: "IBM Plex Mono",
+    data: await fetch(".../IBMPlexMono-Regular.ttf").then(r => r.arrayBuffer()),
+    style: "normal",
+    weight: 400,
+  },
+];
+```
+
 - Use `ImageResponse` from Takumi for response
-- Cache headers: set `Cache-Control` for performance
+- Cache headers: set `Cache-Control: public, max-age=86400` for performance (1 day)
 - Handle error cases gracefully (invalid ID, missing data)

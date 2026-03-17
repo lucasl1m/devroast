@@ -132,14 +132,25 @@ Provide your analysis in the JSON format specified.`;
 
       const responseText = await generateRoast(systemPrompt, userPrompt);
 
-      const analysis = JSON.parse(responseText || "{}") as AnalysisData;
+      let analysis = JSON.parse(responseText || "{}") as AnalysisData;
+
+      if (!analysis.verdict) {
+        analysis = {
+          verdict: "Code needs improvement",
+          score: 5,
+          feedbacks: [],
+          diff: [],
+        };
+      }
+
+      const score = typeof analysis.score === "number" ? analysis.score : 5;
 
       const submission = await createSubmissionWithAnalysis({
         code: input.code,
         language: input.language as CodeSubmissionRow["language"],
         roastMode: input.roastMode as CodeSubmissionRow["roastMode"],
         lineCount,
-        score: analysis.score,
+        score,
         analysis,
       });
 

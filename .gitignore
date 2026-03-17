@@ -43,3 +43,9 @@ next-env.d.ts
 # opencode
 opencode.jsonc
 .worktrees/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo

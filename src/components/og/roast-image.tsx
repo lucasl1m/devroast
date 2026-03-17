@@ -1,9 +1,5 @@
 import { getSubmissionById } from "@/db/queries/submissions";
 
-interface RoastImageProps {
-  id: string;
-}
-
 function getBadgeVariant(score: number): { label: string; color: string; bgColor: string } {
   if (score < 2) {
     return { label: "needs_serious_help", color: "#EF4444", bgColor: "#FEE2E2" };

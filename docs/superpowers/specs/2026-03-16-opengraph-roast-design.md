@@ -105,19 +105,21 @@ export const config = {
 ## Considerations
 
 - Takumi uses JSX with Tailwind CSS (similar to Next.js ImageResponse)
-- Custom fonts must be configured for JetBrains Mono and IBM Plex Mono:
+- Custom fonts must be configured for JetBrains Mono and IBM Plex Mono. Since the project uses `next/font/google`, either:
+  - Download fonts to `public/fonts/` and load via local path, OR
+  - Use Google Fonts direct URLs
 
 ```typescript
 const fonts = [
   {
     name: "JetBrains Mono",
-    data: await fetch(".../JetBrainsMono-Regular.ttf").then(r => r.arrayBuffer()),
+    data: await fetch(new URL("/fonts/JetBrainsMono-Regular.ttf", request.url)).then(r => r.arrayBuffer()),
     style: "normal",
     weight: 400,
   },
   {
     name: "IBM Plex Mono",
-    data: await fetch(".../IBMPlexMono-Regular.ttf").then(r => r.arrayBuffer()),
+    data: await fetch(new URL("/fonts/IBMPlexMono-Regular.ttf", request.url)).then(r => r.arrayBuffer()),
     style: "normal",
     weight: 400,
   },

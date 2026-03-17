@@ -12,10 +12,37 @@ export type CreateSubmissionInput = {
   lineCount: number;
 };
 
+export type AnalysisData = {
+  score: number;
+  verdict: string;
+  feedbacks: Array<{
+    lineNumber: number | null;
+    severity: "critical" | "warning" | "good" | "info";
+    title: string;
+    message: string;
+  }>;
+  diff: Array<{
+    lineNumber: number;
+    type: "added" | "removed" | "context";
+    content: string;
+  }>;
+};
+
 export async function createSubmission(input: CreateSubmissionInput) {
   const result = await db.execute<{ id: string }>(
     sql`INSERT INTO code_submissions (code, language, roast_mode, line_count)
     VALUES (${input.code}, ${input.language}, ${input.roastMode}, ${input.lineCount})
+    RETURNING id`
+  );
+  return result.rows[0];
+}
+
+export async function createSubmissionWithAnalysis(
+  input: CreateSubmissionInput & { analysis: AnalysisData; score: number }
+) {
+  const result = await db.execute<{ id: string }>(
+    sql`INSERT INTO code_submissions (code, language, roast_mode, line_count, score, analysis)
+    VALUES (${input.code}, ${input.language}, ${input.roastMode}, ${input.lineCount}, ${input.score}, ${JSON.stringify(input.analysis)})
     RETURNING id`
   );
   return result.rows[0];
@@ -36,7 +63,15 @@ export async function getLeaderboard(limit = 10, offset = 0) {
     ORDER BY score ASC NULLS LAST
     LIMIT ${limit} OFFSET ${offset}`
   );
-  return result.rows;
+
+  const countResult = await db.execute<{ count: string }>(
+    sql`SELECT COUNT(*) as count FROM code_submissions WHERE score IS NOT NULL`
+  );
+
+  return {
+    items: result.rows,
+    total: parseInt(countResult.rows[0]?.count || "0", 10),
+  };
 }
 
 export async function updateSubmissionScore(id: string, score: number) {

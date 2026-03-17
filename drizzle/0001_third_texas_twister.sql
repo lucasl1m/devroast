@@ -1,0 +1,1 @@
+ALTER TABLE "code_submissions" ADD COLUMN "analysis" jsonb;

@@ -8,6 +8,13 @@
       "when": 1773606411798,
       "tag": "0000_plain_lady_deathstrike",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1773706568491,
+      "tag": "0001_third_texas_twister",
+      "breakpoints": true
     }
   ]
 }

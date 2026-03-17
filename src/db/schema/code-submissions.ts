@@ -1,6 +1,7 @@
 import {
   decimal,
   integer,
+  jsonb,
   pgTable,
   text,
   timestamp,
@@ -16,4 +17,5 @@ export const codeSubmissions = pgTable("code_submissions", {
   score: decimal("score", { precision: 3, scale: 1 }),
   lineCount: integer("line_count").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+  analysis: jsonb("analysis"),
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { use } from "react";
+import { use, useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CodeBlock } from "@/components/ui/code-block";
@@ -32,7 +32,17 @@ export default function RoastResultPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  const [shareUrl, setShareUrl] = useState("");
   const { data: roast, isLoading, error } = trpc.getRoastById.useQuery({ id });
+
+  useEffect(() => {
+    setShareUrl(window.location.href);
+  }, []);
+
+  const handleShare = async () => {
+    await navigator.clipboard.writeText(shareUrl);
+    alert("URL copied to clipboard!");
+  };
 
   if (isLoading) {
     return (
@@ -99,6 +109,7 @@ export default function RoastResultPage({
               <Button
                 variant="secondary"
                 className="ml-auto px-4 py-2 text-xs font-mono"
+                onClick={handleShare}
               >
                 $ share_roast
               </Button>

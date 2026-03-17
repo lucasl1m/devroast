@@ -1,107 +1,92 @@
-import type { Metadata } from "next";
+"use client";
+
+import { use } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CodeBlock } from "@/components/ui/code-block";
 import { DiffLine } from "@/components/ui/diff-line";
 import { ScoreRing } from "@/components/ui/score-ring";
+import { trpc } from "@/server/trpc/client";
 
-export const metadata: Metadata = {
-  title: "Roast Results | DevRoast",
-  description: "Your code has been roasted",
+type AnalysisFeedback = {
+  severity: string;
+  title: string;
+  message: string;
 };
 
-const SAMPLE_CODE = `function calculateTotal(items) {
-  var total = 0;
-  for (var i = 0; i < items.length; i++) {
-    total = total + items[i].price;
+type AnalysisDiff = {
+  type: "added" | "removed" | "context";
+  content: string;
+};
+
+type Analysis = {
+  score: number;
+  verdict: string;
+  feedbacks: AnalysisFeedback[];
+  diff: AnalysisDiff[];
+} | null;
+
+export default function RoastResultPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
+  const { data: roast, isLoading, error } = trpc.getRoastById.useQuery({ id });
+
+  if (isLoading) {
+    return (
+      <main className="min-h-screen bg-bg-page flex items-center justify-center">
+        <span className="font-mono text-accent-green">Loading...</span>
+      </main>
+    );
   }
-  return total;
-}
 
-function calculateTax(total) {
-  // TODO: handle tax calculation
-  return total * 0.1;
-}
+  if (error || !roast) {
+    return (
+      <main className="min-h-screen bg-bg-page flex flex-col items-center justify-center gap-4">
+        <h1 className="font-mono text-accent-red">Roast not found</h1>
+        <a href="/" className="font-mono text-accent-green">
+          ← Back to home
+        </a>
+      </main>
+    );
+  }
 
-function calculateCurrency(total) {
-  // TODO: handle currency conversion
-  return total;
-}`;
+  const SAMPLE_CODE = roast.code;
+  const analysis = roast.analysis as Analysis;
 
-const ISSUES: Array<{
-  type: "critical" | "good";
-  title: string;
-  description: string;
-}> = [
-  {
-    type: "critical",
-    title: "using var instead of const/let",
-    description:
-      "var is function-scoped and leads to hoisting bugs. use const by default, let when reassignment is needed.",
-  },
-  {
-    type: "critical",
-    title: "imperative loop pattern",
-    description:
-      "for loops are verbose and error-prone. use .reduce() or .map() for cleaner, functional transformations.",
-  },
-  {
-    type: "good",
-    title: "clear naming conventions",
-    description:
-      "calculateTotal and items are descriptive, self-documenting names that communicate intent without comments.",
-  },
-  {
-    type: "good",
-    title: "single responsibility",
-    description:
-      "the function does one thing well — calculates a total. no side effects, no mixed concerns, no hidden complexity.",
-  },
-];
+  const ISSUES =
+    analysis?.feedbacks?.map(
+      (
+        f: AnalysisFeedback
+      ): { type: "critical" | "good"; title: string; description: string } => ({
+        type: f.severity === "critical" ? "critical" : "good",
+        title: f.title,
+        description: f.message,
+      })
+    ) || [];
 
-const DIFF_LINES = [
-  {
-    variant: "context" as const,
-    prefix: " ",
-    code: "function calculateTotal(items) {",
-  },
-  { variant: "removed" as const, prefix: "- ", code: "  var total = 0;" },
-  {
-    variant: "removed" as const,
-    prefix: "- ",
-    code: "  for (var i = 0; i < items.length; i++) {",
-  },
-  {
-    variant: "removed" as const,
-    prefix: "- ",
-    code: "    total = total + items[i].price;",
-  },
-  { variant: "removed" as const, prefix: "- ", code: "  }" },
-  { variant: "removed" as const, prefix: "- ", code: "  return total;" },
-  {
-    variant: "added" as const,
-    prefix: "+ ",
-    code: "  return items.reduce((sum, item) => sum + item.price, 0);",
-  },
-  { variant: "context" as const, prefix: " ", code: "}" },
-];
-
-export default function RoastResultPage() {
+  const DIFF_LINES =
+    analysis?.diff?.map((d: AnalysisDiff) => ({
+      variant: d.type,
+      prefix: d.type === "added" ? "+ " : d.type === "removed" ? "- " : " ",
+      code: d.content,
+    })) || [];
   return (
     <main className="min-h-screen bg-bg-page">
       <div className="flex flex-col gap-10 px-20 py-10 max-w-[1440px] mx-auto">
         <section className="flex items-center gap-12">
-          <ScoreRing score={3.5} />
+          <ScoreRing score={analysis?.score || 0} />
           <div className="flex flex-col gap-4 flex-1">
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-accent-red" />
               <span className="font-mono text-sm font-medium text-accent-red">
-                verdict: needs_serious_help
+                verdict: {analysis?.verdict || "unknown"}
               </span>
             </div>
             <h1 className="font-code text-xl text-text-primary leading-relaxed">
-              "this code looks like it was written during a power outage... in
-              2005."
+              "{analysis?.verdict || "no verdict"}"
             </h1>
             <div className="flex items-center gap-3">
               <span className="font-mono text-xs text-text-tertiary">
@@ -151,22 +136,31 @@ export default function RoastResultPage() {
             </h2>
           </div>
           <div className="grid grid-cols-2 gap-5">
-            {ISSUES.map((issue, index) => (
-              <div
-                key={index}
-                className="flex flex-col gap-3 p-5 rounded-md border border-border-primary"
-              >
-                <div className="flex items-center gap-2">
-                  <Badge variant={issue.type}>{issue.type}</Badge>
+            {ISSUES.map(
+              (
+                issue: {
+                  type: "critical" | "good";
+                  title: string;
+                  description: string;
+                },
+                index: number
+              ) => (
+                <div
+                  key={index}
+                  className="flex flex-col gap-3 p-5 rounded-md border border-border-primary"
+                >
+                  <div className="flex items-center gap-2">
+                    <Badge variant={issue.type}>{issue.type}</Badge>
+                  </div>
+                  <h3 className="font-mono text-sm font-medium text-text-primary">
+                    {issue.title}
+                  </h3>
+                  <p className="font-code text-xs text-text-secondary leading-relaxed">
+                    {issue.description}
+                  </p>
                 </div>
-                <h3 className="font-mono text-sm font-medium text-text-primary">
-                  {issue.title}
-                </h3>
-                <p className="font-code text-xs text-text-secondary leading-relaxed">
-                  {issue.description}
-                </p>
-              </div>
-            ))}
+              )
+            )}
           </div>
         </section>
 
@@ -188,14 +182,23 @@ export default function RoastResultPage() {
               </span>
             </div>
             <div className="py-1">
-              {DIFF_LINES.map((line, index) => (
-                <DiffLine
-                  key={index}
-                  variant={line.variant}
-                  prefix={line.prefix}
-                  code={line.code}
-                />
-              ))}
+              {DIFF_LINES.map(
+                (
+                  line: {
+                    variant: "added" | "removed" | "context";
+                    prefix: string;
+                    code: string;
+                  },
+                  index: number
+                ) => (
+                  <DiffLine
+                    key={index}
+                    variant={line.variant}
+                    prefix={line.prefix}
+                    code={line.code}
+                  />
+                )
+              )}
             </div>
           </div>
         </section>

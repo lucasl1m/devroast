@@ -14,16 +14,25 @@ function ScoreRing({
   className,
 }: ScoreRingProps) {
   const percentage = Math.min(Math.max(score / maxScore, 0), 1);
-  const strokeWidth = 4;
+  const strokeWidth = 8;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const dashOffset = circumference * (1 - percentage);
 
-  const getColor = (s: number) => {
-    if (s >= 7) return "text-accent-green";
-    if (s >= 4) return "text-accent-amber";
+  const getScoreColor = (s: number) => {
+    if (s >= 4) return "var(--accent-green)";
+    if (s >= 2) return "var(--accent-amber)";
+    return "var(--accent-red)";
+  };
+
+  const getScoreColorClass = (s: number) => {
+    if (s >= 4) return "text-accent-green";
+    if (s >= 2) return "text-accent-amber";
     return "text-accent-red";
   };
+
+  const scoreColor = getScoreColor(score);
+  const scoreColorClass = getScoreColorClass(score);
 
   return (
     <div
@@ -33,7 +42,7 @@ function ScoreRing({
       )}
       style={{ width: size, height: size }}
     >
-      {/* Outer ring */}
+      {/* Outer ring - background */}
       <svg
         width={size}
         height={size}
@@ -50,26 +59,19 @@ function ScoreRing({
         />
       </svg>
 
-      {/* Gradient arc */}
+      {/* Progress ring */}
       <svg
         width={size}
         height={size}
         className="absolute inset-0 -rotate-90"
         aria-label="Score ring progress"
       >
-        <defs>
-          <linearGradient id="scoreGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="var(--accent-green)" />
-            <stop offset="35%" stopColor="var(--accent-amber)" />
-            <stop offset="36%" stopColor="transparent" />
-          </linearGradient>
-        </defs>
         <circle
           cx={size / 2}
           cy={size / 2}
           r={radius}
           fill="none"
-          stroke="url(#scoreGradient)"
+          stroke={scoreColor}
           strokeWidth={strokeWidth}
           strokeDasharray={circumference}
           strokeDashoffset={dashOffset}
@@ -82,7 +84,7 @@ function ScoreRing({
         <span
           className={twMerge(
             "font-mono text-5xl font-bold leading-none",
-            getColor(score)
+            scoreColorClass
           )}
         >
           {score.toFixed(1)}

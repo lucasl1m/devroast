@@ -10,13 +10,15 @@ export async function GET(
 ) {
   const { id } = await params;
 
-  const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  const uuidRegex =
+    /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
   if (!uuidRegex.test(id)) {
     return new NextResponse("Invalid ID", { status: 400 });
   }
 
   try {
-    const { score, badge, language, lineCount, verdict } = await generateRoastImage(id);
+    const { score, badge, language, lineCount, verdict } =
+      await generateRoastImage(id);
 
     return new ImageResponse(
       <RoastImage

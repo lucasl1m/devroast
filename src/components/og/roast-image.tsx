@@ -1,13 +1,27 @@
-import { getSubmissionById } from "@/db/queries/submissions";
+import { getLineCount, getSubmissionById } from "@/db/queries/submissions";
 
-function getBadgeVariant(score: number): { label: string; color: string; bgColor: string } {
+function getBadgeVariant(score: number): {
+  label: string;
+  color: string;
+  bgColor: string;
+} {
   if (score < 2) {
-    return { label: "needs_serious_help", color: "#EF4444", bgColor: "#FEE2E2" };
+    return {
+      label: "needs_serious_help",
+      color: "#EF4444",
+      bgColor: "#FEE2E2",
+    };
   }
   if (score < 4) {
     return { label: "could_be_better", color: "#F59E0B", bgColor: "#FEF3C7" };
   }
   return { label: "not_bad", color: "#22C55E", bgColor: "#DCFCE7" };
+}
+
+function getScoreColor(score: number): string {
+  if (score >= 4) return "#22C55E";
+  if (score >= 2) return "#F59E0B";
+  return "#EF4444";
 }
 
 export async function generateRoastImage(id: string) {
@@ -16,11 +30,14 @@ export async function generateRoastImage(id: string) {
     throw new Error("Roast not found");
   }
 
-  const analysis = submission.analysis as { score: number; verdict: string } | null;
+  const analysis = submission.analysis as {
+    score: number;
+    verdict: string;
+  } | null;
   const score = analysis?.score ?? 0;
   const badge = getBadgeVariant(score);
   const language = submission.language;
-  const lineCount = submission.lineCount ?? 1;
+  const lineCount = getLineCount(submission);
   const verdict = analysis?.verdict ?? "no verdict";
 
   return {
@@ -45,6 +62,8 @@ export function RoastImage({
   lineCount: number;
   verdict: string;
 }) {
+  const scoreColor = getScoreColor(score);
+
   return (
     <div
       style={{
@@ -61,16 +80,34 @@ export function RoastImage({
     >
       {/* Logo */}
       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-        <span style={{ color: "#22C55E", fontSize: "24px", fontWeight: "700" }}>&gt;</span>
-        <span style={{ color: "#FAFAFA", fontSize: "20px", fontWeight: "500" }}>devroast</span>
+        <span style={{ color: "#22C55E", fontSize: "24px", fontWeight: "700" }}>
+          &gt;
+        </span>
+        <span style={{ color: "#FAFAFA", fontSize: "20px", fontWeight: "500" }}>
+          devroast
+        </span>
       </div>
 
       {/* Score */}
       <div style={{ display: "flex", alignItems: "baseline", gap: "4px" }}>
-        <span style={{ color: "#F59E0B", fontSize: "160px", fontWeight: "900", lineHeight: 1 }}>
+        <span
+          style={{
+            color: scoreColor,
+            fontSize: "160px",
+            fontWeight: "900",
+            lineHeight: 1,
+          }}
+        >
           {score.toFixed(1)}
         </span>
-        <span style={{ color: "#525252", fontSize: "56px", fontWeight: "400", lineHeight: 1 }}>
+        <span
+          style={{
+            color: "#525252",
+            fontSize: "56px",
+            fontWeight: "400",
+            lineHeight: 1,
+          }}
+        >
           /10
         </span>
       </div>
@@ -85,13 +122,17 @@ export function RoastImage({
             backgroundColor: badge.color,
           }}
         />
-        <span style={{ color: badge.color, fontSize: "20px", fontWeight: "400" }}>
+        <span
+          style={{ color: badge.color, fontSize: "20px", fontWeight: "400" }}
+        >
           {badge.label}
         </span>
       </div>
 
       {/* Lang + Lines */}
-      <span style={{ color: "#525252", fontSize: "16px", fontFamily: "monospace" }}>
+      <span
+        style={{ color: "#525252", fontSize: "16px", fontFamily: "monospace" }}
+      >
         lang: {language} · {lineCount} lines
       </span>
 

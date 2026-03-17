@@ -1,41 +1,46 @@
+const API_KEY = process.env.GEMINI_API_KEY || "";
+
+function extractJSON(text: string): string {
+  const match = text.match(/```(?:json)?\s*([\s\S]*?)```/);
+  if (match) {
+    return match[1].trim();
+  }
+  return text.trim();
+}
+
 export async function generateRoast(
   systemPrompt: string,
   userPrompt: string
 ): Promise<string> {
-  // Mock response for testing - replace with real API when ready
-  const mockResponse = {
-    verdict:
-      "This code is so simple even a beginner would be embarrassed to submit it. But hey, at least it works!",
-    score: 7,
-    feedbacks: [
-      {
-        lineNumber: null,
-        severity: "good" as const,
-        title: "It actually runs",
-        message:
-          "Surprisingly, this code does what it's supposed to do. A miracle, really.",
-      },
-      {
-        lineNumber: 1,
-        severity: "warning" as const,
-        title: "Missing semicolon",
-        message:
-          "Use semicolons consistently in JavaScript to avoid ASI issues.",
-      },
-    ],
-    diff: [
-      {
-        lineNumber: 1,
-        type: "context" as const,
-        content: "function hello() {",
-      },
-      { lineNumber: 2, type: "added" as const, content: '  return "world";' },
-      { lineNumber: 3, type: "context" as const, content: "}" },
-    ],
-  };
+  const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
 
-  // Simulate API delay
-  await new Promise((resolve) => setTimeout(resolve, 1500));
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${API_KEY}`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        contents: [
+          {
+            parts: [
+              {
+                text: fullPrompt,
+              },
+            ],
+          },
+        ],
+      }),
+    }
+  );
 
-  return JSON.stringify(mockResponse);
+  const data = await response.json();
+
+  if (data.candidates && data.candidates[0]?.content?.parts[0]?.text) {
+    const text = data.candidates[0].content.parts[0].text;
+    return extractJSON(text);
+  }
+
+  return "{}";
 }

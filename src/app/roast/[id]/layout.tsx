@@ -7,7 +7,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params;
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://devroast.com";
-  
+
   return {
     openGraph: {
       images: [`${baseUrl}/api/og/${id}`],

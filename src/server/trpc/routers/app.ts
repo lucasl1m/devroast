@@ -67,7 +67,7 @@ Score: 0-10 where 0 = terrible code, 10 = perfect code.
 
 Your response must be valid JSON with this exact structure:
 {
-  "verdict": "A sarcastic, creative insult about the code quality",
+  "verdict": "A SHORT sarcastic roast (MAX 50 characters)",
   "score": number,
   "feedbacks": [
     {
@@ -81,10 +81,14 @@ Your response must be valid JSON with this exact structure:
     {
       "lineNumber": number,
       "type": "added" | "removed" | "context",
-      "content": "The code line"
+      "content": "The code line (include ALL lines - use 'context' for unchanged lines, 'added' for new lines, 'removed' for deleted lines)"
     }
   ]
 }
+
+IMPORTANT: 
+- The verdict MUST be MAX 50 characters. Be creative but brief.
+- The diff must include ALL lines from the original code. Use type "context" for lines that are NOT changed, "added" for new lines, and "removed" for deleted lines. Show the complete improved code as a unified diff.
 
 Be harsh but fair. Focus on real issues.`
           : `You are a supportive code mentor. Analyze the code and provide constructive feedback in JSON format.
@@ -93,7 +97,7 @@ Score: 0-10 where 0 = needs work, 10 = excellent code.
 
 Your response must be valid JSON with this exact structure:
 {
-  "verdict": "An encouraging but honest assessment",
+  "verdict": "A SHORT encouraging message (MAX 50 characters)",
   "score": number,
   "feedbacks": [
     {
@@ -107,10 +111,14 @@ Your response must be valid JSON with this exact structure:
     {
       "lineNumber": number,
       "type": "added" | "removed" | "context",
-      "content": "The code line"
+      "content": "The code line (include ALL lines - use 'context' for unchanged lines, 'added' for new lines, 'removed' for deleted lines)"
     }
   ]
 }
+
+IMPORTANT: 
+- The verdict MUST be MAX 50 characters.
+- The diff must include ALL lines from the original code. Use type "context" for lines that are NOT changed, "added" for new lines, and "removed" for deleted lines. Show the complete improved code as a unified diff.
 
 Be constructive and helpful. Focus on teaching, not insulting.`;
 

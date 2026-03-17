@@ -5,6 +5,16 @@ import type { codeSubmissions } from "../schema";
 
 export type CodeSubmissionRow = InferSelectModel<typeof codeSubmissions>;
 
+export function getLineCount(submission: CodeSubmissionRow): number {
+  if (typeof submission.lineCount === "number") {
+    return submission.lineCount;
+  }
+  if (typeof (submission as Record<string, unknown>).line_count === "number") {
+    return (submission as Record<string, unknown>).line_count as number;
+  }
+  return submission.code?.split("\n").length || 1;
+}
+
 export type CreateSubmissionInput = {
   code: string;
   language: CodeSubmissionRow["language"];

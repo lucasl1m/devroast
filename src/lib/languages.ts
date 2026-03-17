@@ -17,6 +17,13 @@ export const popularLanguages = [
   "sql",
   "shell",
   "yaml",
+  "cpp",
+  "ruby",
+  "swift",
+  "kotlin",
+  "markdown",
+  "bash",
+  "other",
 ] as const;
 
 export const supportedLanguages = [
@@ -44,6 +51,13 @@ export const languageNames: Record<SupportedLanguage, string> = {
   sql: "SQL",
   shell: "Shell",
   plaintext: "Plain Text",
+  cpp: "C++",
+  ruby: "Ruby",
+  swift: "Swift",
+  kotlin: "Kotlin",
+  markdown: "Markdown",
+  bash: "Bash",
+  other: "Other",
 };
 
 export const languageAliases: Partial<Record<string, SupportedLanguage>> = {
